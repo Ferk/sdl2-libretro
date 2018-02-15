@@ -20,20 +20,20 @@ ifeq ($(platform), unix)
 	CC = gcc
 	CXX = g++
 	CFLAGS = -O2 -Iinclude -D_GNU_SOURCE=1 -Wall -D__LIBRETRO__ -DHAVE_POW -DHAVE_MMAP=0
-	CXXFLAGS = -g -O2  -fno-merge-constants 
+	CXXFLAGS = -g -O2  -fno-merge-constants
 	TARGET := $(TARGET_NAME)
 	fpic := -fPIC
 #	SHARED := -shared -Wl,--no-undefined -Wl,--version-script=link.T
 	ENDIANNESS_DEFINES := -DLSB_FIRST
 	FLAGS += -D__LINUX__
-	EXTRA_LDF =  -fPIC -lm -lrt -lpthread  
+	EXTRA_LDF =  -fPIC -lm -lrt -lpthread
 	SDL_PREFIX := lin
 # android arm
 else ifneq (,$(findstring android,$(platform)))
    	TARGET := $(TARGET_NAME)
    	fpic = -fPIC
    	SHARED := -lstdc++ -llog -lz -shared -Wl,--version-script=link.T -Wl,--no-undefined
-	CFLAGS +=  -g -O2 
+	CFLAGS +=  -g -O2
    	CC = arm-linux-androideabi-gcc
    	CXX = arm-linux-androideabi-g++
 # Wii U
@@ -42,7 +42,7 @@ else ifeq ($(platform), wiiu)
 	CC = $(DEVKITPPC)/bin/powerpc-eabi-gcc$(EXE_EXT)
 	CXX = $(DEVKITPPC)/bin/powerpc-eabi-g++$(EXE_EXT)
 	AR = $(DEVKITPPC)/bin/powerpc-eabi-ar$(EXE_EXT)
-	COMMONFLAGS += -DWIIU -mwup -mcpu=750 -meabi -mhard-float -D__POWERPC__ -D__ppc__ 
+	COMMONFLAGS += -DWIIU -mwup -mcpu=750 -meabi -mhard-float -D__POWERPC__ -D__ppc__
 	COMMONFLAGS += -U__INT32_TYPE__ -U __UINT32_TYPE__ -D__INT32_TYPE__=int -DMSB_FIRST -DWORDS_BIGENDIAN=1
 	COMMONFLAGS += -Iwiiu-deps
 	CFLAGS += $(COMMONFLAGS) -O2 -Iinclude -D_GNU_SOURCE=1 -Wall -D__LIBRETRO__ -DHAVE_POW -DHAVE_MMAP=0
@@ -70,7 +70,7 @@ else ifeq ($(platform), wincross64ex)
 	CFLAGS = -O2 -Iinclude -D_GNU_SOURCE=1 -Wall -D__LIBRETRO__
  	CFLAGS+=-DX86_64 -m64
 	LDFLAGS+=-m64
-	LDFLAGS += -static-libgcc -static-libstdc++ 
+	LDFLAGS += -static-libgcc -static-libstdc++
 	ENDIANNESS_DEFINES := -DLSB_FIRST
 	FLAGS +=
 	EXTRA_LDF := -lwinmm -ole32 -Wl,--export-all-symbols
@@ -90,7 +90,7 @@ else
    	CC = gcc
    	CXX = g++
 	CFLAGS = -O2 -Iinclude -D_GNU_SOURCE=1 -Wall -D__LIBRETRO__
-   	LDFLAGS += -static-libgcc -static-libstdc++ 
+   	LDFLAGS += -static-libgcc -static-libstdc++
    	ENDIANNESS_DEFINES := -DLSB_FIRST
    	FLAGS +=
 	EXTRA_LDF = -lwinmm -Wl,--export-all-symbols
@@ -113,14 +113,14 @@ SOURCES = \
 	src/joystick/dummy_libretro/*.c \
 	src/loadso/dummy/*.c \
 	src/power/*.c \
-	src/filesystem/dummy/*.c \
+	src/filesystem/libretro/*.c \
 	src/render/*.c \
 	src/render/software/*.c \
 	src/stdlib/*.c \
 	src/thread/*.c \
 	src/timer/*.c \
 	src/video/*.c \
-	src/video/dummy_libretro/*.c 
+	src/video/dummy_libretro/*.c
 
 ifeq ($(SDL_PREFIX), win)
 SOURCES += \
@@ -130,7 +130,7 @@ SOURCES += \
 	src/thread/windows/SDL_syssem.o \
 	src/thread/windows/SDL_systhread.o \
 	src/thread/windows/SDL_sysmutex.o \
-	src/thread/generic/SDL_syscond.o 
+	src/thread/generic/SDL_syscond.o
 else ifeq ($(SDL_PREFIX), lin)
 SOURCES += \
 	src/timer/dummy_libretro/*.c \
@@ -138,7 +138,7 @@ SOURCES += \
 	src/thread/pthread/SDL_syssem.o \
 	src/thread/pthread/SDL_systhread.o \
 	src/thread/pthread/SDL_sysmutex.o \
-	src/thread/pthread/SDL_syscond.o 
+	src/thread/pthread/SDL_syscond.o
 else ifeq ($(SDL_PREFIX), wiiu)
 SOURCES += \
 	src/timer/dummy_libretro/*.c \
@@ -146,7 +146,7 @@ SOURCES += \
 	src/thread/pthread/SDL_syssem.o \
 	src/thread/pthread/SDL_systhread.o \
 	src/thread/pthread/SDL_sysmutex.o \
-	src/thread/pthread/SDL_syscond.o 
+	src/thread/pthread/SDL_syscond.o
 endif
 
 OBJECTS = $(shell echo $(SOURCES) | sed -e 's,\.c,\.o,g')
@@ -157,18 +157,18 @@ else
    FLAGS += -O0 -g
 endif
 
-LDFLAGS +=  $(fpic) $(SHARED) $(EXTRA_LDF) 
+LDFLAGS +=  $(fpic) $(SHARED) $(EXTRA_LDF)
 FLAGS += -I. -I.. -I./include
 
-WARNINGS :=  
-	
-FLAGS += -D__LIBRETRO__ $(ENDIANNESS_DEFINES) $(WARNINGS) $(fpic) 
+WARNINGS :=
+
+FLAGS += -D__LIBRETRO__ $(ENDIANNESS_DEFINES) $(WARNINGS) $(fpic)
 
 CXXFLAGS += $(FLAGS) -fpermissive
-CFLAGS += $(FLAGS) 
+CFLAGS += $(FLAGS)
 
 $(TARGET): $(OBJECTS)
-	$(AR) rcs $@ $^ 
+	$(AR) rcs $@ $^
 	$(CP) $(TARGET) ./bin/libs/
 
 %.o: %.cpp

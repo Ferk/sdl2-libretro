@@ -44,7 +44,7 @@ void init_app(){
     {
         fprintf(stderr, "Could not initialize SDL: %s\n", SDL_GetError());
         exit(1);
-    } 
+    }
 
     window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 
@@ -74,6 +74,11 @@ void init_app(){
 
 
 void exec_app(){
+
+	/* Print some SDL paths to showcase this works */
+	printf("SDL_GetBasePath(): %s\n", SDL_GetBasePath());
+	printf("SDL_GetPrefPath(\"test.helloworld\",\"helloworld\"): %s\n",
+			SDL_GetPrefPath("test.helloworld","helloworld"));
 
 	//Clear screen
 	SDL_RenderClear( renderer );

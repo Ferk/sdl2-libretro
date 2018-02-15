@@ -36,7 +36,7 @@ void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb) { audio_batch_c
 void retro_set_input_poll(retro_input_poll_t cb) { input_poll_cb = cb; }
 void retro_set_input_state(retro_input_state_t cb) { input_state_cb = cb; }
 int sdlinitok=0;
-// these 2 funtions have to be implemented for Libretro SDL port
+// these 3 funtions have to be implemented for Libretro SDL port
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -49,8 +49,12 @@ void libretro_audio_cb(int16_t left, int16_t right)
 short int libretro_input_state_cb(unsigned port,unsigned device,unsigned index,unsigned id){
 	if(sdlinitok==0)return 0;
 	return input_state_cb(port,device,index,id);
+}
 
-} 
+short int libretro_environment_cb(unsigned cmd, void *data){
+	if(sdlinitok==0)return 0;
+	return environ_cb(cmd, data);
+}
 #ifdef __cplusplus
 }
 #endif
@@ -62,7 +66,7 @@ extern void exec_app();
 
 void texture_init(){
         memset(videoBuffer, 0, sizeof(videoBuffer));
-} 
+}
 
 void retro_set_environment(retro_environment_t cb)
 {
@@ -86,7 +90,7 @@ static void update_variables(void)
 {
    struct retro_variable var = {0};
 
- 
+
    var.key = "sdlmandel_analog";
    var.value = NULL;
 
@@ -173,7 +177,7 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code)
 }
 
 bool retro_load_game(const struct retro_game_info *info)
-{    
+{
 /*
 	const char *full_path;
 
@@ -227,24 +231,24 @@ void retro_init(void)
 
    if (environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system_dir) && system_dir)
    {
-      // if defined, use the system directory			
-      retro_system_directory=system_dir;		
-   }		   
+      // if defined, use the system directory
+      retro_system_directory=system_dir;
+   }
 
    const char *content_dir = NULL;
 
    if (environ_cb(RETRO_ENVIRONMENT_GET_CONTENT_DIRECTORY, &content_dir) && content_dir)
    {
-      // if defined, use the system directory			
-      retro_content_directory=content_dir;		
-   }			
+      // if defined, use the system directory
+      retro_content_directory=content_dir;
+   }
 
    const char *save_dir = NULL;
 
    if (environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &save_dir) && save_dir)
    {
       // If save directory is defined use it, otherwise use system directory
-      retro_save_directory = *save_dir ? save_dir : retro_system_directory;      
+      retro_save_directory = *save_dir ? save_dir : retro_system_directory;
    }
    else
    {
@@ -308,12 +312,13 @@ void retro_reset(void)
 }
 
 void retro_run(void)
-{ 
-        static bool firstcall=true;
+{
+	static bool firstcall=true;
 	if(firstcall){
 		firstcall=false;
 		sdlinitok=1;
-	}      
+		printf("Libretro SDL initialized.\n");
+	}
 
 	update_input();
 
@@ -323,7 +328,6 @@ void retro_run(void)
 
 	exec_app();
 
-        video_cb(videoBuffer, retrow, retroh, retrow << 2);
+	video_cb(videoBuffer, retrow, retroh, retrow << 2);
 
 }
-
